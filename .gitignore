@@ -1,3 +1,8 @@
+# Ignore directories
+__IMG
+__extra
+__measure
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
