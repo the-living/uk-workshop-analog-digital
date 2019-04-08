@@ -30,6 +30,8 @@ class MarkerCrop(object):
         self.detector = Blob(self.min_area, self.max_area)
 
         self.corners = []
+
+        self.calibrated = False
     
     @property
     def corners_cnt(self):
@@ -42,6 +44,9 @@ class MarkerCrop(object):
         f.close()
 
     def detect(self, img, center=False):
+        if not self.calibrated:
+            self.color.calibrate(img)
+        
         mask = Mask(self.color.detect(img))
 
         mask.morph_open(update=True)
