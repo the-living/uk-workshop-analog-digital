@@ -1,0 +1,1 @@
+{"edge": {"lower": 85, "upper": 160}, "thresh": {"level": 100, "output": 255, "mode": 3, "block": 11, "blur": 5}, "width": 330, "height": 430, "inset": 5}
