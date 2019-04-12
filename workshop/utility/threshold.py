@@ -1,4 +1,5 @@
 import cv2
+import json
 
 modes = ["Normal", "AdaptiveMean", "AdaptiveGaussian", "OTSU"]
 
@@ -13,7 +14,7 @@ class Threshold(object):
 
     def detect(self, img):
         gray = img.copy()
-        if gray.shape[2] > 1:
+        if len(gray.shape)>2 and gray.shape[2] > 1:
             gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
         if self.mode == 3:
             # OTSU
@@ -29,8 +30,7 @@ class Threshold(object):
         return cv2.threshold(gray, self.level, 255, cv2.THRESH_BINARY)[1]
 
     
-    def calibrate(self, img):
-        window_label = "THRESHOLD Calibration"
+    def calibrate(self, img, window_label="THRESHOLD Calibration"):
         while True:
             # DRAW SETTING ON IMAGE
             calib = cv2.cvtColor(self.detect(img), cv2.COLOR_GRAY2BGR)
@@ -75,3 +75,17 @@ class Threshold(object):
             
         # KILL CALIBRATION WINDOW
         cv2.destroyWindow(window_label)
+    
+    def save_settings(self):
+        return {"level": self.level, "output":self.output, "mode":self.mode, "block":self.block, "blur":self.blur}
+    
+    def load_settings(self, data):
+        self.level = data["level"]
+        self.output = data["output"]
+        self.mode = data["mode"]
+        self.block = data["block"]
+        self.blur = data["blur"]
+    
+    def load_settings_file(self, fp):
+        data = json.load(open(fp, mode='r'))
+        self.load_settings(data)

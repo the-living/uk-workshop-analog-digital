@@ -1,4 +1,5 @@
 import cv2
+import json
 
 class EdgeDetector(object):
 
@@ -7,20 +8,22 @@ class EdgeDetector(object):
         self.upper = upper
     
     def detect(self, img, open=True):
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(img, (7,7), 0)
         edges = cv2.Canny(img, self.lower, self.upper)
         if open:
             edges = cv2.dilate(edges, None, iterations=1)
             edges = cv2.erode(edges, None, iterations=1)
         return edges
     
-    def calibrate(self, img):
+    def calibrate(self, img, window_label="EdgeDetector Calibration"):
         while True:
             # DRAW SETTING ON IMAGE
             calib = cv2.cvtColor(self.detect(img), cv2.COLOR_GRAY2BGR)
             label = "CANNY {} : {}".format(self.lower, self.upper)
             cv2.putText(calib, label, (0, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0))
             # SHOW CURRENT EGDE DETECTION
-            cv2.imshow("CANNY Calibration", calib)
+            cv2.imshow(window_label, calib)
 
             # WAIT FOR KEYBOARD INPUT
             k = cv2.waitKeyEx(0)
@@ -41,4 +44,15 @@ class EdgeDetector(object):
                 self.lower = max(0, min(255, self.lower + 5))
             
         # KILL CALIBRATION WINDOW
-        cv2.destroyWindow("CANNY Calibration")
+        cv2.destroyWindow(window_label)
+    
+    def save_settings(self):
+        return {"lower": self.lower, "upper": self.upper}
+        
+    def load_settings(self, data):    
+        self.lower = data["lower"]
+        self.upper = data["upper"]
+    
+    def load_settings_file(self, fp):
+        data = json.load(open(fp, mode='r'))
+        self.load_settings(data)

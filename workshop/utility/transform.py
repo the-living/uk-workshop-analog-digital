@@ -18,19 +18,17 @@ def ordered_points(points):
     diff = np.diff(points, axis=1)
     rect[1] = points[np.argmin(diff)]
     rect[3] = points[np.argmax(diff)]
-    return rect
+    return rect.astype('int')
 
 def corner_transform(image, points, dim=None):
     rect = ordered_points(points)
     if dim is None:
         (tl, tr, br, bl) = rect
         w = int(max(point_distance(br,bl), point_distance(tr, tl)))
-        h = int(max(point_distance(tl,bl), point_distance(tr,br)))
-        # w = max(l1,l2)
-        # h = min(l1,l2)        
+        h = int(max(point_distance(tl,bl), point_distance(tr,br)))     
     else:
         w,h = dim
-
+    rect = rect.astype(np.float32)
     dst = np.array([
         [0,0],
         [w-1,0],

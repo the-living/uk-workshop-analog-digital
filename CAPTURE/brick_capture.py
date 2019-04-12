@@ -20,11 +20,16 @@ BRICK_CALIBRATION = os.path.join(PROJECT_DIR, r"settings\detector_settings.json"
 
 BRICK_OUTPUT = os.path.join(PROJECT_DIR, r"output\bricks")
 
+def draw_label(img, text_lines):
+    for i, line in enumerate(text_lines):
+        cv2.putText(img, line, (20,20 + 20 * i),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1, cv2.LINE_AA)
+
 
 w,h = (1920, 1080)
 feed = cv2.VideoCapture(1)
-feed.set(3,h)
-feed.set(4,w)
+feed.set(3,w)
+feed.set(4,h)
 
 lb_w, lb_h = (330,430)
 
@@ -37,8 +42,10 @@ while True:
     ret, frame = feed.read()
     frame = cb.undistort(frame, crop=False)
 
-    msg = "[SPACE]: CONFIRM [c]: RE-CALIBRATE"
-    cv2.putText(frame, msg, (20,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+    msg1 = "CAMERA UNDISTORT"
+    msg2 = "[SPACE]: CONFIRM [C]: RE-CALIBRATE"
+    msg = [msg1, msg2]
+    draw_label(frame, msg)
 
     cv2.imshow('undistorted', frame)
     k = cv2.waitKey(0)
@@ -70,6 +77,11 @@ def run(calibrated=False):
             frame = cb.undistort(frame)
             print(frame.shape)
 
+            msg1 = "TURN ON LIGHT BOX"
+            msg2 = "[SPACE]: CAPTURE [ESC]: QUIT"
+            msg = [msg1, msg2]
+            draw_label(frame, msg)
+
             cv2.imshow('DETECTION', frame)
             k = cv2.waitKey(10)
             if k == 27:
@@ -86,7 +98,14 @@ def run(calibrated=False):
             ret, frame = feed.read()
             frame = cb.undistort(frame)
 
-            cv2.imshow('DETECTION', lightbox.preview(frame))
+            frame = lightbox.preview(frame)
+
+            msg1 = "DETECTION AREA"
+            msg2 = "[SPACE]: CONFIRM [X]: RE-CALIBRATE [ESC]: QUIT"
+            msg = [msg1, msg2]
+            draw_label(frame, msg)
+
+            cv2.imshow('DETECTION', frame)
             k = cv2.waitKey(10)
             if k == 27:
                 return False
@@ -105,6 +124,11 @@ def run(calibrated=False):
 
         cropped = lightbox.crop_image(frame, (840, 640))
 
+        msg1 = "PLACE OBJECT ON DETECTION SURFACE"
+        msg2 = "[SPACE]: CONFIRM [ESC]: QUIT"
+        msg = [msg1, msg2]
+        draw_label(cropped, msg)
+
         cv2.imshow('DETECTION', cropped)
         k = cv2.waitKey(10)
         if k == 27:
@@ -122,6 +146,11 @@ def run(calibrated=False):
 
         detection = detector.detect_edge(cropped)
         detection = detector.get_box(detection)
+
+        msg1 = "DETECTED SHAPE"
+        msg2 = "[SPACE]: CONFIRM [X]: RE-CALIBRATE [ESC]: QUIT"
+        msg = [msg1, msg2]
+        draw_label(detection, msg)
 
         cv2.imshow('DETECTION', detection)
         k = cv2.waitKey(10)
@@ -142,6 +171,11 @@ def run(calibrated=False):
         cropped = lightbox.crop_image(frame, (840, 640))
 
         detection = detector.get_holes(cropped)
+
+        msg1 = "DETECTED FEATURES"
+        msg2 = "[SPACE]: CONFIRM [X]: RE-CALIBRATE [ESC]: QUIT"
+        msg = [msg1, msg2]
+        draw_label(detection, msg)
 
         cv2.imshow('DETECTION', detection)
         k = cv2.waitKey(10)
@@ -165,6 +199,11 @@ def run(calibrated=False):
 
         cropped = lightbox.crop_image(frame, (840, 640))
 
+        msg1 = "ROTATE OBJECT TO CAPTURE SECOND SIDE"
+        msg2 = "[SPACE]: CONFIRM [ESC]: QUIT"
+        msg = [msg1, msg2]
+        draw_label(cropped, msg)
+
         cv2.imshow('DETECTION', cropped)
         k = cv2.waitKey(10)
         if k == 27:
@@ -182,6 +221,11 @@ def run(calibrated=False):
 
         detection = detector.detect_edge(cropped)
         detection = detector.get_box(detection)
+
+        msg1 = "DETECTED SHAPE"
+        msg2 = "[SPACE]: CONFIRM [X]: RE-CALIBRATE [ESC]: QUIT"
+        msg = [msg1, msg2]
+        draw_label(detection, msg)
 
         cv2.imshow('DETECTION', detection)
         k = cv2.waitKey(10)
@@ -204,7 +248,7 @@ def run(calibrated=False):
     print("PRINT AND APPLY LABEL TO OBJECT")
     print("PRESS [SPACE BAR] TO CONTINUE")
     print("PRESS [ESC] TO QUIT")
-    frame = np.zeros(frame.shape[:2], dtype=np.uint8)
+    frame = np.zeros(cropped.shape[:2], dtype=np.uint8)
     msg1 = "LABEL THIS BRICK"
     msg2 = "{:04}".format(brick_count)
     cv2.putText(frame, msg1, (20,100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255), 2, cv2.LINE_AA)

@@ -7,8 +7,7 @@ import numpy as np
 import json
 
 from math import floor
-
-__all__ = ["Chessboard", "CircleGrid"]
+from random import shuffle
 
 class Calibration(object):
     """Generic calibration class"""
@@ -211,7 +210,8 @@ class CircleGrid(Calibration):
             cv2.putText(img, label, (0, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0))
             
             if display:
-                cv2.imshow('blob', img_kp)
+                # cv2.imshow('blob', img_kp)
+                img = cv2.resize(img, None, fx=0.5, fy=0.5)
                 cv2.imshow("calibration", img)
             c = cv2.waitKey(2)
             if c == 27:

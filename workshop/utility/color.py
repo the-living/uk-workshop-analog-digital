@@ -4,13 +4,14 @@ from __future__ import division
 
 import cv2
 import numpy as np
+import json
 
 from workshop.utility import Mask
 
 
 class ColorRange(object):
     """Color detection class"""
-    def __init__(self, color_min, color_max):
+    def __init__(self, color_min=(0,0,0), color_max=(255,255,255)):
         self.color = list(color_min) + list(color_max)
         self.val = 0
     
@@ -51,8 +52,7 @@ class ColorRange(object):
         #CREATE MASK FROM REGIONS OF IMAGE WITHIN COLOR RANGE
         return cv2.inRange(denoise, self.color_min, self.color_max)
     
-    def calibrate(self, img):
-        window_label = "COLORRANGE Calibration"
+    def calibrate(self, img, window_label="COLORRANGE Calibration"):
         while True:
             # DRAW SETTING ON IMAGE
             calib = cv2.cvtColor(self.detect(img), cv2.COLOR_GRAY2BGR)
@@ -87,3 +87,15 @@ class ColorRange(object):
             
         # KILL CALIBRATION WINDOW
         cv2.destroyWindow(window_label)
+    
+    def save_settings(self):
+        return {"color": self.color, "val": self.val}
+    
+    def load_settings(self, data):
+        self.color = data["color"]
+        self.val = data["val"]
+    
+    def load_settings_file(self, fp):
+        data = json.load(open(fp, mode='r'))
+        self.load_settings(data)
+

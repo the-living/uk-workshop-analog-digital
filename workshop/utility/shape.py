@@ -7,6 +7,7 @@ import numpy as np
 from math import fabs
 
 from workshop.utility import point_distance
+from workshop.utility import contour_center
 
 class Shape(object):
     def __init__(self, contour):
@@ -33,6 +34,10 @@ class Shape(object):
     @property
     def sides(self):
         return len(self.approx)
+    
+    @property
+    def centroid(self):
+        return contour_center(self.contour)
 
     @property
     def shape(self):
